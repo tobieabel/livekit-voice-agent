@@ -1,0 +1,4 @@
+livekit
+Pillow
+numpy
+python-dotenv 
