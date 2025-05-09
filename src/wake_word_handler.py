@@ -1,12 +1,17 @@
 # wake_word_handler.py
 import re
 import logging
+import os
 from typing import AsyncIterable, Optional
 from livekit import rtc
 from livekit.agents import stt
 from wav_player import WavPlayer
 
 logger = logging.getLogger("wake-word-handler")
+
+# Get the project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_NOTIFICATION_SOUND = os.path.join(PROJECT_ROOT, 'assets', 'notification.wav')
 
 class WakeWordHandler:
     def __init__(self, wake_word: str = "computer", room: rtc.Room = None):
@@ -20,7 +25,8 @@ class WakeWordHandler:
         """Play the wake word sound when state changes to false"""
         if self.room:
             try:
-                await self.wav_player.play_once("assets/notification.wav", self.room)
+                notification_sound = os.getenv('NOTIFICATION_SOUND', DEFAULT_NOTIFICATION_SOUND)
+                await self.wav_player.play_once(notification_sound, self.room)
             except Exception as e:
                 logger.error(f"Error playing wake word sound: {e}")
 

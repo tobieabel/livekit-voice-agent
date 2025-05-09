@@ -5,6 +5,7 @@ import asyncio
 import logging
 from PIL import Image
 import numpy as np
+import os
 from livekit import rtc
 from livekit.agents import (
     Agent,
@@ -31,6 +32,10 @@ HEIGHT = 480
 
 room_name = "tobie"
 agent_name = "computer"
+
+# Get the project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_LOGO_PATH = os.path.join(PROJECT_ROOT, 'assets', 'logo.png')
 
 #not currently using this, instead using the Node.js version to create the dispatch in the front end Meet app
 async def create_explicit_dispatch():
@@ -87,19 +92,26 @@ async def entrypoint(ctx: JobContext):
     logging.info("published track", extra={"track_sid": publication.sid})
 
     async def _display_logo():
-        # Load the image
-        img = Image.open('assets/logo.png')
-        # Resize image to match our dimensions
-        img = img.resize((WIDTH, HEIGHT))
-        # Convert to RGBA if it isn't already
-        img = img.convert('RGBA')
-        # Convert to bytes
-        img_bytes = np.array(img).tobytes()
-        
-        # Create the frame once outside the loop
-        frame = rtc.VideoFrame(WIDTH, HEIGHT, rtc.VideoBufferType.RGBA, img_bytes)
-        
         try:
+            # Try to load the logo from the assets directory
+            logo_path = os.getenv('LOGO_PATH', DEFAULT_LOGO_PATH)
+            if not os.path.exists(logo_path):
+                logging.warning(f"Logo not found at {logo_path}, using default black frame")
+                # Create a black frame if logo is not found
+                img = Image.new('RGBA', (WIDTH, HEIGHT), (0, 0, 0, 255))
+            else:
+                img = Image.open(logo_path)
+                # Resize image to match our dimensions
+                img = img.resize((WIDTH, HEIGHT))
+                # Convert to RGBA if it isn't already
+                img = img.convert('RGBA')
+            
+            # Convert to bytes
+            img_bytes = np.array(img).tobytes()
+            
+            # Create the frame once outside the loop
+            frame = rtc.VideoFrame(WIDTH, HEIGHT, rtc.VideoBufferType.RGBA, img_bytes)
+            
             while True:
                 source.capture_frame(frame)
                 await asyncio.sleep(0.1)  # 10 FPS is sufficient for a static image
@@ -107,7 +119,13 @@ async def entrypoint(ctx: JobContext):
             logging.info("Logo display task cancelled")
         except Exception as e:
             logging.error(f"Error in logo display: {e}")
-            raise
+            # Create a black frame as fallback
+            img = Image.new('RGBA', (WIDTH, HEIGHT), (0, 0, 0, 255))
+            img_bytes = np.array(img).tobytes()
+            frame = rtc.VideoFrame(WIDTH, HEIGHT, rtc.VideoBufferType.RGBA, img_bytes)
+            while True:
+                source.capture_frame(frame)
+                await asyncio.sleep(0.1)
 
     # Create the agent with wake word functionality and pass the room
     agent = SimpleVoiceAgent(wake_word="computer", room=room)

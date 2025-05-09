@@ -1,6 +1,7 @@
 import wave
 import numpy as np
 import asyncio
+import os
 from pathlib import Path
 from livekit import rtc
 
@@ -39,12 +40,16 @@ class WavPlayer:
             room: LiveKit room instance
             volume: Volume level (0.0 to 1.0)
         """
-        wav_path = Path(wav_path).resolve()  # Convert to absolute path
-        
-        if not wav_path.exists():
-            raise FileNotFoundError(f"WAV file not found: {wav_path}")
-        
         try:
+            # Convert to absolute path if it's not already
+            if not os.path.isabs(wav_path):
+                wav_path = os.path.abspath(wav_path)
+            
+            wav_path = Path(wav_path)
+            
+            if not wav_path.exists():
+                raise FileNotFoundError(f"WAV file not found: {wav_path}")
+            
             await self.initialize_track(room)
             
             # Use cached audio data if available
