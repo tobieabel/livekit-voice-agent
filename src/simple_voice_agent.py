@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 from livekit import api
 from wake_word_handler import WakeWordHandler  # Import the wake word handler
 from typing import AsyncIterable, Optional
-from prompts import INSTRUCTIONS, WELCOME_MESSAGE
+from prompts import INSTRUCTIONS, WELCOME_MESSAGE, AI_TRAINING_INSTRUCTIONS
 load_dotenv()
 
 WIDTH = 640
@@ -62,7 +62,7 @@ async def join_committee(context: RunContext,name: str,):
 class SimpleVoiceAgent(Agent):
     def __init__(self, wake_word: str = "computer", room: rtc.Room = None) -> None:
         super().__init__(
-            instructions=INSTRUCTIONS,
+            instructions=AI_TRAINING_INSTRUCTIONS,
             tools=[join_committee],
             
         )
