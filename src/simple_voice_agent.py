@@ -135,7 +135,7 @@ async def entrypoint(ctx: JobContext):
         # any combination of STT, LLM, TTS, or realtime API can be used
         stt=deepgram.STT(model="nova-3"),
         llm=openai.LLM(model="gpt-4o-mini"),
-        tts=openai.TTS(voice="ash"),
+        tts=openai.TTS(voice="ballad"),
     )
 
     await session.start(agent=agent, room=ctx.room)
