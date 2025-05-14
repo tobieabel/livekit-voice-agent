@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 from livekit import api
 from wake_word_handler import WakeWordHandler  # Import the wake word handler
 from typing import AsyncIterable, Optional
-from prompts import INSTRUCTIONS, WELCOME_MESSAGE, AI_TRAINING_INSTRUCTIONS
+from prompts import COMMITTEE_INSTRUCTIONS, WELCOME_MESSAGE, AI_TRAINING_INSTRUCTIONS
 load_dotenv()
 
 WIDTH = 640
