@@ -62,7 +62,7 @@ async def join_committee(context: RunContext,name: str,):
 class SimpleVoiceAgent(Agent):
     def __init__(self, wake_word: str = "computer", room: rtc.Room = None) -> None:
         super().__init__(
-            instructions=AI_TRAINING_INSTRUCTIONS,
+            instructions=COMMITTEE_INSTRUCTIONS,
             tools=[join_committee],
             
         )
